@@ -1,0 +1,32 @@
+name: network
+version: 2.4.2.3
+id: network-2.4.2.3-05705526a53612ca73a2a208f112a1a4
+
+license: BSD3
+maintainer: Johan Tibell <johan.tibell@gmail.com>
+homepage: https://github.com/haskell/network
+synopsis: Low-level networking interface
+description:
+    Low-level networking interface
+category: Network
+exposed: True
+exposed-modules:
+    Network Network.BSD Network.Socket Network.Socket.ByteString
+    Network.Socket.ByteString.Lazy Network.Socket.Internal Network.URI
+hidden-modules: Network.Socket.ByteString.Internal
+                Network.Socket.Types Network.Socket.ByteString.IOVec
+                Network.Socket.ByteString.MsgHdr
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/network-2.4.2.3
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/network-2.4.2.3
+hs-libraries: HSnetwork-2.4.2.3
+include-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/network-2.4.2.3/include
+includes:
+    HsNet.h
+depends:
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+    bytestring-0.10.4.0-aeb2ba35f192516ed4298f0656cc3a85
+    parsec-3.1.5-d6da2beec91a46ed409a8ee61df7a3b4
+    unix-2.7.0.1-985e344ffdcd7bd021e4a2ee28057ccc
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/network-2.4.2.3/doc/html/network.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/network-2.4.2.3/doc/html

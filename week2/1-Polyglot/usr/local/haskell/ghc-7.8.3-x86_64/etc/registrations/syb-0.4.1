@@ -1,0 +1,34 @@
+name: syb
+version: 0.4.1
+id: syb-0.4.1-be94ebe67c3607f5df1dfcc1906f5d5c
+
+license: BSD3
+maintainer: generics@haskell.org
+stability: provisional
+homepage: http://www.cs.uu.nl/wiki/GenericProgramming/SYB
+synopsis: Scrap Your Boilerplate
+description:
+    This package contains the generics system described in the
+    /Scrap Your Boilerplate/ papers (see
+    <http://www.cs.uu.nl/wiki/GenericProgramming/SYB>).
+    It defines the @Data@ class of types permitting folding and unfolding
+    of constructor applications, instances of this class for primitive
+    types, and a variety of traversals.
+category: Generics
+author: Ralf Lammel, Simon Peyton Jones, Jose Pedro Magalhaes
+exposed: True
+exposed-modules:
+    Data.Generics Data.Generics.Basics Data.Generics.Instances
+    Data.Generics.Aliases Data.Generics.Schemes Data.Generics.Text
+    Data.Generics.Twins Data.Generics.Builders Generics.SYB
+    Generics.SYB.Basics Generics.SYB.Instances Generics.SYB.Aliases
+    Generics.SYB.Schemes Generics.SYB.Text Generics.SYB.Twins
+    Generics.SYB.Builders
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/syb-0.4.1
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/syb-0.4.1
+hs-libraries: HSsyb-0.4.1
+depends:
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/syb-0.4.1/doc/html/syb.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/syb-0.4.1/doc/html

@@ -1,0 +1,34 @@
+name: xhtml
+version: 3000.2.1
+id: xhtml-3000.2.1-60df6e9b440632263732d2755981ffca
+
+license: BSD3
+copyright: Bjorn Bringert 2004-2006, Andy Gill and the Oregon
+           Graduate Institute of Science and Technology, 1999-2001
+maintainer: Chris Dornan <chris@chrisdornan.com>
+stability: Stable
+homepage: https://github.com/haskell/xhtml
+synopsis: An XHTML combinator library
+description:
+    This package provides combinators for producing
+    XHTML 1.0, including the Strict, Transitional and
+    Frameset variants.
+category: Web, XML, Pretty Printer
+author: Bjorn Bringert
+exposed: True
+exposed-modules:
+    Text.XHtml Text.XHtml.Frameset Text.XHtml.Strict
+    Text.XHtml.Transitional Text.XHtml.Debug Text.XHtml.Table
+hidden-modules: Text.XHtml.Strict.Attributes
+                Text.XHtml.Strict.Elements Text.XHtml.Frameset.Attributes
+                Text.XHtml.Frameset.Elements Text.XHtml.Transitional.Attributes
+                Text.XHtml.Transitional.Elements Text.XHtml.BlockTable
+                Text.XHtml.Extras Text.XHtml.Internals
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/xhtml-3000.2.1
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/xhtml-3000.2.1
+hs-libraries: HSxhtml-3000.2.1
+depends:
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/xhtml-3000.2.1/doc/html/xhtml.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/xhtml-3000.2.1/doc/html

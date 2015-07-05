@@ -1,0 +1,43 @@
+name: GLUT
+version: 2.5.1.1
+id: GLUT-2.5.1.1-e8c7f4cefea796306f1a3de37902cf3b
+
+license: BSD3
+maintainer: Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>
+homepage: http://www.haskell.org/haskellwiki/Opengl
+synopsis: A binding for the OpenGL Utility Toolkit
+description:
+    A Haskell binding for the OpenGL Utility Toolkit, a window system independent
+    toolkit for writing OpenGL programs. For more information about the C library
+    on which this binding is based, please see:
+    <http://www.opengl.org/resources/libraries/glut/>.
+category: Graphics
+exposed: True
+exposed-modules:
+    Graphics.UI.GLUT Graphics.UI.GLUT.Begin Graphics.UI.GLUT.Callbacks
+    Graphics.UI.GLUT.Callbacks.Global Graphics.UI.GLUT.Callbacks.Window
+    Graphics.UI.GLUT.Colormap Graphics.UI.GLUT.Debugging
+    Graphics.UI.GLUT.DeviceControl Graphics.UI.GLUT.Fonts
+    Graphics.UI.GLUT.GameMode Graphics.UI.GLUT.Initialization
+    Graphics.UI.GLUT.Menu Graphics.UI.GLUT.Objects
+    Graphics.UI.GLUT.Overlay Graphics.UI.GLUT.State
+    Graphics.UI.GLUT.Window
+hidden-modules: Graphics.UI.GLUT.Callbacks.Registration
+                Graphics.UI.GLUT.QueryUtils Graphics.UI.GLUT.Raw
+                Graphics.UI.GLUT.Raw.APIEntry Graphics.UI.GLUT.Raw.Callbacks
+                Graphics.UI.GLUT.Raw.Fonts Graphics.UI.GLUT.Raw.Functions
+                Graphics.UI.GLUT.Raw.Tokens Graphics.UI.GLUT.Types
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/GLUT-2.5.1.1
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/GLUT-2.5.1.1
+hs-libraries: HSGLUT-2.5.1.1
+extra-libraries:
+    glut
+depends:
+    OpenGL-2.9.2.0-12b3c648554fd0f7751ad49185888c88
+    OpenGLRaw-1.5.0.0-e3da07b0b9416aea652c4870a0df992e
+    array-0.5.0.0-b8a3e03cc1fe2faa719c34f245086f0e
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+    containers-0.5.5.1-0d8db9193d3e3371e0142bcc8a4a0721
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/GLUT-2.5.1.1/doc/html/GLUT.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/GLUT-2.5.1.1/doc/html

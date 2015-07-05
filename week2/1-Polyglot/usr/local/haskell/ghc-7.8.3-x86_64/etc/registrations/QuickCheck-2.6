@@ -1,0 +1,42 @@
+name: QuickCheck
+version: 2.6
+id: QuickCheck-2.6-57018e2e3393bc74e85a74b8c120d6d1
+
+license: BSD3
+copyright: 2000-2012 Koen Claessen, 2006-2008 Björn Bringert, 2009-2012 Nick Smallbone
+maintainer: QuickCheck developers <quickcheck@projects.haskell.org>
+homepage: http://code.haskell.org/QuickCheck
+synopsis: Automatic testing of Haskell programs
+description:
+    QuickCheck is a library for random testing of program properties.
+    .
+    The programmer provides a specification of the program, in
+    the form of properties which functions should satisfy, and
+    QuickCheck then tests that the properties hold in a large number
+    of randomly generated cases.
+    .
+    Specifications are expressed in
+    Haskell, using combinators defined in the QuickCheck library.
+    QuickCheck provides combinators to define properties, observe
+    the distribution of test data, and define test
+    data generators.
+category: Testing
+author: Koen Claessen <koen@chalmers.se>
+exposed: True
+exposed-modules:
+    Test.QuickCheck Test.QuickCheck.Arbitrary Test.QuickCheck.Gen
+    Test.QuickCheck.Monadic Test.QuickCheck.Modifiers
+    Test.QuickCheck.Property Test.QuickCheck.Test Test.QuickCheck.Text
+    Test.QuickCheck.Poly Test.QuickCheck.State Test.QuickCheck.Function
+    Test.QuickCheck.All
+hidden-modules: Test.QuickCheck.Exception
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/QuickCheck-2.6
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/QuickCheck-2.6
+hs-libraries: HSQuickCheck-2.6
+depends:
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+    random-1.0.1.1-ad12334c1c6b9f15e3b53a819c94d6ff
+    template-haskell-2.9.0.0-bde0146477914ef1904ea318a335bb91
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/QuickCheck-2.6/doc/html/QuickCheck.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/QuickCheck-2.6/doc/html

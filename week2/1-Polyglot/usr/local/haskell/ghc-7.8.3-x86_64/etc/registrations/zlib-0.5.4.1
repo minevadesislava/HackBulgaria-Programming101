@@ -1,0 +1,38 @@
+name: zlib
+version: 0.5.4.1
+id: zlib-0.5.4.1-37a3bed3871514a5a87c3bac5550a92f
+
+license: BSD3
+copyright: (c) 2006-2012 Duncan Coutts
+maintainer: Duncan Coutts <duncan@community.haskell.org>
+synopsis: Compression and decompression in the gzip and zlib formats
+description:
+    This package provides a pure interface for compressing and
+    decompressing streams of data represented as lazy
+    'ByteString's. It uses the zlib C library so it has high
+    performance. It supports the \"zlib\", \"gzip\" and \"raw\"
+    compression formats.
+    .
+    It provides a convenient high level API suitable for most
+    tasks and for the few cases where more control is needed it
+    provides access to the full zlib feature set.
+category: Codec
+author: Duncan Coutts <duncan@community.haskell.org>
+exposed: True
+exposed-modules:
+    Codec.Compression.GZip Codec.Compression.Zlib
+    Codec.Compression.Zlib.Raw Codec.Compression.Zlib.Internal
+hidden-modules: Codec.Compression.Zlib.Stream
+trusted: False
+import-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/zlib-0.5.4.1
+library-dirs: /usr/local/haskell/ghc-7.8.3-x86_64/lib/zlib-0.5.4.1
+hs-libraries: HSzlib-0.5.4.1
+extra-libraries:
+    z
+includes:
+    zlib.h
+depends:
+    base-4.7.0.1-1a55ebc8256b39ccbff004d48b3eb834
+    bytestring-0.10.4.0-aeb2ba35f192516ed4298f0656cc3a85
+haddock-interfaces: /usr/local/haskell/ghc-7.8.3-x86_64/lib/zlib-0.5.4.1/doc/html/zlib.haddock
+haddock-html: /usr/local/haskell/ghc-7.8.3-x86_64/lib/zlib-0.5.4.1/doc/html

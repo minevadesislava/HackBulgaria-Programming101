@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="movies-and-projections">
+    <th>Movies & Projections!</th>
+    {% for key, value in projections.items %}
+        <tr>
+            <td>{{ key.name }}</td>
+            <td>
+                <table>
+                    {% for pr in value %}
+                    <tr>
+                         <td>{{pr.type_projection}}</td>
+                        <td>{{pr.date}}</td>
+                        <td>{{pr.time_projection}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endblock %}

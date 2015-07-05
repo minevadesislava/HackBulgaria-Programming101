@@ -1,0 +1,651 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>1.5. Release notes for version 7.8.1</title><link rel="stylesheet" type="text/css" href="fptools.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"><link rel="home" href="index.html" title="The Glorious Glasgow Haskell Compilation System User's Guide, Version 7.8.3"><link rel="up" href="introduction-GHC.html" title="Chapter 1. Introduction to GHC"><link rel="prev" href="version-numbering.html" title="1.4. GHC version numbering policy"><link rel="next" href="release-7-8-2.html" title="1.6. Release notes for version 7.8.2"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">1.5. Release notes for version 7.8.1</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="version-numbering.html">Prev</a> </td><th width="60%" align="center">Chapter 1. Introduction to GHC</th><td width="20%" align="right"> <a accesskey="n" href="release-7-8-2.html">Next</a></td></tr></table><hr></div><div class="sect1" title="1.5. Release notes for version 7.8.1"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="release-7-8-1"></a>1.5. Release notes for version 7.8.1</h2></div></div></div><p>
+      The significant changes to the various parts of the compiler are listed
+      in the following sections. There have also been numerous bug fixes and
+      performance improvements over the 7.6 branch.
+  </p><div class="sect2" title="1.5.1. Highlights"><div class="titlepage"><div><div><h3 class="title"><a name="idp5337600"></a>1.5.1. Highlights</h3></div></div></div><p>
+        The highlights, since the 7.6 branch, are:
+    </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                OS X Mavericks with XCode 5 is now properly supported
+                by GHC. As a result of this, GHC now uses Clang to
+                preprocess Haskell code by default for Mavericks
+                builds.
+           </p><p>
+                Note that normally, GHC used <code class="literal">gcc</code> as
+                the preprocessor for Haskell code (as it was the
+                default everywhere,) which implements
+                <code class="literal">-traditional</code> behavior. However,
+                Clang is not 100% compatible with GCC's
+                <code class="literal">-traditional</code> as it is rather
+                implementation specified and does not match any
+                specification. Clang is also more strict.
+           </p><p>
+                As a result of this, when using Clang as the
+                preprocessor, some programs which previously used
+                <code class="literal">-XCPP</code> and the preprocessor will now
+                fail to compile. Users who wish to retain the previous
+                behavior are better off using cpphs as an external
+                preprocessor for the time being.
+           </p><p>
+                In the future, we hope to fix this by adopting a
+                better preprocessor implementation independent of the
+                C compiler (perhaps cpphs itself,) and ship that
+                instead.
+           </p></li><li class="listitem"><p>
+                By default, GHC has a new warning enabled,
+                <code class="literal">-fwarn-typed-holes</code>, which causes the
+                compiler to respond with the types of unbound
+                variables it encounters in the source code. (It is
+                reminiscient of the "holes" feature in languages such
+                as Agda.)
+
+                For more information, see <a class="xref" href="typed-holes.html" title="7.14. Typed Holes">Section 7.14, &#8220;Typed Holes&#8221;</a>.
+           </p></li><li class="listitem"><p>
+                GHC can now perform simple evaluation of type-level
+                natural numbers, when using the
+                <code class="literal">DataKinds</code> extension. For example,
+                given a type-level constraint such as <code class="literal">(x + 3)
+                ~ 5</code>, GHC is able to infer that
+                <code class="literal">x</code> is 2. Similarly, GHC can now
+                understand type-level identities such as <code class="literal">x +
+                0 ~ x</code>.
+           </p><p>
+                Note that the solving of these equations is only used
+                to resolve unification variables - it does not
+                generate new facts in the type checker. This is
+                similar to how functional dependencies work.
+           </p></li><li class="listitem"><p>
+                It is now possible to declare a 'closed' <code class="literal">type
+                family</code> when using the
+                <code class="literal">TypeFamilies</code> extension. A closed
+                <code class="literal">type family</code> cannot have any
+                instances created other than the ones in its
+                definition.
+
+                For more information, see <a class="xref" href="type-families.html#closed-type-families" title="7.7.2.3. Closed type families">Section 7.7.2.3, &#8220;Closed type families&#8221;</a>.
+           </p></li><li class="listitem"><p>
+                Use of the <code class="literal">GeneralizedNewtypeDeriving</code>
+                extension is now subject to <span class="emphasis"><em>role checking</em></span>,
+                to ensure type safety of the derived instances. As this change
+                increases the type safety of GHC, it is possible that some code
+                that previously compiled will no longer work.
+
+                For more information, see <a class="xref" href="roles.html" title="7.25. Roles">Section 7.25, &#8220;Roles
+
+&#8221;</a>.
+          </p></li><li class="listitem"><p>
+                GHC now supports overloading list literals using the new
+                <code class="literal">OverloadedLists</code> extension.
+
+                For more information, see <a class="xref" href="type-class-extensions.html#overloaded-lists" title="7.6.5. Overloaded lists">Section 7.6.5, &#8220;Overloaded lists&#8221;</a>.
+           </p></li><li class="listitem"><p>
+                GHC now supports pattern synonyms, enabled by the
+                <code class="literal">-XPatternSynonyms</code> extension,
+                allowing you to name and abstract over patterns more
+                easily.
+
+                For more information, see <a class="xref" href="syntax-extns.html#pattern-synonyms" title="7.3.8. Pattern synonyms">Section 7.3.8, &#8220;Pattern synonyms
+&#8221;</a>.
+           </p><p>
+                Note: For the GHC 7.8.1 version, this language feature
+                should be regarded as a preview.
+           </p></li><li class="listitem"><p>
+                There has been significant overhaul of the type
+                inference engine and constraint solver, meaning it
+                should be faster and use less memory.
+           </p></li><li class="listitem"><p>
+                By default, GHC will now unbox all "small" strict
+                fields in a data type. A "small" data type is one
+                whose size is equivalent to or smaller than the native
+                word size of the machine. This means you no longer
+                have to specify <code class="literal">UNPACK</code> pragmas for
+                e.g. strict <code class="literal">Int</code> fields. This also
+                applies to floating-point values.
+           </p></li><li class="listitem"><p>
+                GHC now has a brand-new I/O manager that scales significantly
+                better for larger workloads compared to the previous one. It
+                should scale linearly up to approximately 32 cores.
+           </p></li><li class="listitem"><p>
+                The LLVM backend now supports 128- and 256-bit SIMD
+                operations.
+           </p><p>
+                Note carefully: this is <span class="emphasis"><em>only</em></span> available with
+                the LLVM backend, and should be considered
+                experimental.
+           </p></li><li class="listitem"><p>
+                The new code generator, after significant work by many
+                individuals over the past several years, is now enabled by
+                default. This is a complete rewrite of the STG to Cmm
+                transformation. In general, your programs may get slightly
+                faster.
+           </p><p>
+                The old code generator has been removed completely.
+           </p></li><li class="listitem"><p>
+                GHC now has substantially better support for cross
+                compilation. In particular, GHC now has all the
+                necessary patches to support cross compilation to
+                Apple iOS, using the LLVM backend.
+           </p></li><li class="listitem"><p>
+                PrimOps for comparing unboxed values now return
+                <code class="literal">Int#</code> instead of <code class="literal">Bool</code>.
+                This change is backwards incompatible. See
+                <a class="ulink" href="http://ghc.haskell.org/trac/ghc/wiki/NewPrimopsInGHC7.8" target="_top">
+                this GHC wiki page</a> for instructions how to update your
+                existing code. See <a class="ulink" href="http://ghc.haskell.org/trac/ghc/wiki/PrimBool" target="_top">
+                here</a> for motivation and discussion of implementation details.
+           </p></li><li class="listitem"><p>
+                New PrimOps for atomic memory operations.
+                The <code class="literal">casMutVar#</code> PrimOp was introduced in
+                GHC 7.2 (debugged in 7.4).  This release also includes additional
+                PrimOps for compare-and-swap (<code class="literal">casArray#</code> and
+                <code class="literal">casIntArray#</code>) and one for fetch-and-add
+                (<code class="literal">fetchAddIntArray#</code>).
+           </p></li><li class="listitem"><p>
+                On Linux, FreeBSD and Mac OS X, GHCi now uses the
+                system dynamic linker by default, instead of its built
+                in (static) object linker. This is more robust
+                cross-platform, and fixes many long-standing bugs (for
+                example: constructors and destructors, weak symbols,
+                etc work correctly, and several edge cases in the RTS
+                are fixed.)
+           </p><p>
+                As a result of this, GHCi (and Template Haskell) must
+                now load <span class="emphasis"><em>dynamic</em></span> object files, not static
+                ones. To assist this, there is a new compilation flag,
+                <code class="literal">-dynamic-too</code>, which when used
+                during compilation causes GHC to emit both static and
+                dynamic object files at the same time. GHC itself
+                still defaults to static linking.
+            </p><p>
+                Note that Cabal will correctly handle
+                <code class="literal">-dynamic-too</code> for you automatically,
+                especially when <code class="literal">-XTemplateHaskell</code>
+                is needed - but you <span class="emphasis"><em>must</em></span> tell Cabal you are
+                using the <code class="literal">TemplateHaskell</code>
+                extension.
+           </p><p>
+                Note that you must be using Cabal and Cabal-install
+                1.18 for it to correctly build dynamic shared libraries
+                for you.
+           </p><p>
+                Currently, Dynamic GHCi and
+                <code class="literal">-dynamic-too</code> are not supported on
+                Windows (32bit or 64bit.)
+           </p></li><li class="listitem"><p>
+                <code class="literal">Typeable</code> is now poly-kinded, making
+                <code class="literal">Typeable1</code>, <code class="literal">Typeable2</code>,
+                etc., obsolete, deprecated, and relegated to
+                <code class="literal">Data.OldTypeable</code>. Furthermore, user-written
+                instances of <code class="literal">Typeable</code> are now disallowed:
+                use <code class="literal">deriving</code> or the new extension
+                <code class="literal">-XAutoDeriveTypeable</code>, which will create
+                <code class="literal">Typeable</code> instances for every datatype
+                declared in the module.
+           </p></li><li class="listitem"><p>
+                GHC now has a parallel compilation driver. When
+                compiling with <code class="literal">--make</code> (which is on
+                by default,) you may also specify
+                <code class="literal">-jN</code> in order to compile
+                <em class="replaceable"><code>N</code></em> modules in
+                parallel. (Note: this will automatically scale on
+                multicore machines without specifying <code class="literal">+RTS
+                -N</code> to the compiler.)
+           </p></li><li class="listitem"><p>
+                GHC now has support for a new pragma,
+                <code class="literal">{-# MINIMAL #-}</code>, allowing you to
+                explicitly declare the minimal complete definition of
+                a class. Should an instance not provide the minimal
+                required definitions, a warning will be emitted.
+                See <a class="xref" href="pragmas.html#minimal-pragma" title="7.20.5. MINIMAL pragma">Section 7.20.5, &#8220;MINIMAL pragma&#8221;</a> for details.
+           </p></li><li class="listitem"><p>
+                In GHC 7.10, <code class="literal">Applicative</code> will
+                become a superclass of <code class="literal">Monad</code>,
+                potentially breaking a lot of user code. To ease this
+                transition, GHC now generates warnings when
+                definitions conflict with the Applicative-Monad
+                Proposal (AMP).
+           </p><p>
+                A warning is emitted if a type is an instance of
+                <code class="literal">Monad</code> but not of
+                <code class="literal">Applicative</code>,
+                <code class="literal">MonadPlus</code> but not
+                <code class="literal">Alternative</code>, and when a local
+                function named <code class="literal">join</code>,
+                <code class="literal">&lt;*&gt;</code> or <code class="literal">pure</code> is
+                defined.
+           </p><p>
+                The warnings are enabled by default, and can be controlled
+                using the new flag <code class="literal">-f[no-]warn-amp</code>.
+           </p></li><li class="listitem"><p>
+                Using the new <code class="literal">InterruptibleFFI</code>
+                extension, it's possible to now declare a foreign
+                import as <code class="literal">interruptible</code>, as opposed
+                to only <code class="literal">safe</code> or
+                <code class="literal">unsafe</code>. An
+                <code class="literal">interruptible</code> foreign call is the
+                same as a <code class="literal">safe</code> call, but may be
+                interrupted by asynchronous <span class="emphasis"><em>Haskell
+                exceptions</em></span>, such as those generated by
+                <code class="literal">throwTo</code> or
+                <code class="literal">timeout</code>.
+           </p><p>
+                For more information (including the exact details on
+                how the foreign thread is interrupted,) see <a class="xref" href="ffi.html#ffi-interruptible" title="8.1.4. Interruptible foreign calls">Section 8.1.4, &#8220;Interruptible foreign calls&#8221;</a>.
+           </p></li><li class="listitem"><p>
+                GHC's internal compiler pipeline is now exposed
+                through a <code class="literal">Hooks</code> module inside the
+                GHC API. These hooks allow you to control most of the
+                internal compiler phase machinery, including compiling
+                expressions, phase control, and linking.
+           </p><p>
+                Note: this interface will likely see continuous
+                refinement and API changes in future releases, so it
+                should be considered a preview.
+           </p></li><li class="listitem"><p>
+                The LLVM code generator has been fixed to support
+                dynamic linking. This enables runtime-linking
+                (e.g. GHCi) support for architectures without support in
+                GHC's own runtime linker (e.g. ARM).
+           </p><p>
+                Note: Tables-next-to-code is disabled when building on
+                ARM with binutil's ld due to a
+                <a class="ulink" href="https://sourceware.org/bugzilla/show_bug.cgi?id=16177" target="_top">
+                bug</a> in ld.
+           </p></li><li class="listitem"><p>
+                GHC now uses Unicode <span class="emphasis"><em>left/right single quotation
+                marks</em></span> (i.e. U+2018 and U+2019) in compiler messages
+                if the current locale supports Unicode characters.
+           </p></li></ul></div></div><div class="sect2" title="1.5.2. Full details"><div class="titlepage"><div><div><h3 class="title"><a name="idp5435216"></a>1.5.2. Full details</h3></div></div></div><div class="sect3" title="1.5.2.1. Language"><div class="titlepage"><div><div><h4 class="title"><a name="idp5435856"></a>1.5.2.1. Language</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    There is a new extension,
+                    <code class="literal">NullaryTypeClasses</code>, which
+                    allows you to declare a type class without any
+                    parameters.
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    There is a new extension,
+                    <code class="literal">NumDecimals</code>, which allows you
+                    to specify an integer using compact "floating
+                    literal" syntax. This lets you say things like
+                    <code class="literal">1.2e6 :: Integer</code> instead of
+                    <code class="literal">1200000</code>
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    There is a new extension,
+                    <code class="literal">NegativeLiterals</code>, which will
+                    cause GHC to interpret the expression
+                    <code class="literal">-123</code> as <code class="literal">fromIntegral
+                    (-123)</code>. Haskell 98 and Haskell 2010 both
+                    specify that it should instead desugar to
+                    <code class="literal">negate (fromIntegral 123)</code>
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    There is a new extension,
+                    <code class="literal">EmptyCase</code>, which allows
+                    to write a case expression with no alternatives
+                    <code class="literal">case ... of {}</code>.
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     The <code class="literal">IncoherentInstances</code>
+                     extension has seen a behavioral change, and is
+                     now 'liberated' and less conservative during
+                     instance resolution. This allows more programs to
+                     compile than before.
+               </p><p>
+                     Now, <code class="literal">IncoherentInstances</code> will
+                     always pick an arbitrary matching instance, if
+                     multiple ones exist.
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     A new built-in function <code class="literal">coerce</code> is
+                     provided that allows to safely coerce values between types
+                     that have the same run-time-presentation, such as
+                     newtypes, but also newtypes inside containers. See the
+                     haddock documentation of
+                     <a class="ulink" href="../libraries/base-4.7.0.1/Data-Coerce.html#v%3Acoerce" target="_top">coerce</a>
+                     and of the class
+                     <a class="ulink" href="../libraries/base-4.7.0.1/Data-Coerce.html#t%3ACoercible" target="_top">Coercible</a>
+                     for more details.
+               </p><p>
+                     This feature is included in this release as a technology
+                     preview, and may change its syntax and/or semantics in the
+                     next release.
+               </p></li></ul></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     The new pragma, <code class="literal">{-# MINIMAL #-}</code>,
+                     allows to explicitly declare the minimal complete
+                     definition of a class. Should an instance not provide
+                     the minimal required definitions, a warning will be
+                     emitted.
+               </p><p>
+                     See <a class="xref" href="pragmas.html#minimal-pragma" title="7.20.5. MINIMAL pragma">Section 7.20.5, &#8220;MINIMAL pragma&#8221;</a> for more details.
+               </p></li></ul></div></div><div class="sect3" title="1.5.2.2. Compiler"><div class="titlepage"><div><div><h4 class="title"><a name="idp5458736"></a>1.5.2.2. Compiler</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    GHC can now build both static and dynamic object
+                    files at the same time in a single compilation
+                    pass, when given the
+                    <code class="literal">-dynamic-too</code> flag. This will
+                    produce both a statically-linkable
+                    <code class="literal">.o</code> object file, and a
+                    dynamically-linkable <code class="literal">.dyn_o</code>
+                    file. The output suffix of the dynamic objects can
+                    be controlled by the flag
+                    <code class="literal">-dynosuf</code>.
+               </p><p>
+                    Note that GHC still builds statically by default.
+               </p></li><li class="listitem"><p>
+                    GHC now supports a
+                    <code class="literal">--show-options</code> flag, which will
+                    dump all of the flags it supports to standard out.
+               </p></li><li class="listitem"><p>
+                    GHC now supports warning about overflow of integer
+                    literals, enabled by
+                    <code class="literal">-fwarn-overflowed-literals</code>. It
+                    is enabled by default.
+               </p></li><li class="listitem"><p>
+                    It's now possible to switch the system linker on Linux
+                    (between GNU gold and GNU ld) at runtime without problem.
+               </p></li><li class="listitem"><p>
+                    The <code class="literal">-fwarn-dodgy-imports</code> flag now warns
+                    in the case an <code class="literal">import</code> statement hides an
+                    entity which is not exported.
+               </p></li><li class="listitem"><p>
+                    The LLVM backend was overhauled and rewritten, and
+                    should hopefully be easier to maintain and work on
+                    in the future.
+               </p></li><li class="listitem"><p>
+                    GHC now detects annotation changes during
+                    recompilation, and correctly persists new
+                    annotations.
+               </p></li><li class="listitem"><p>
+                    There is a new set of primops for utilizing
+                    hardware-based prefetch instructions, to help
+                    guide the processor's caching decisions.
+               </p><p>
+                    Currently, the primops get translated into
+                    the associated hardware supported prefetch
+                    instructions only with the LLVM backend and
+                    x86/amd64 backends. On all other backends,
+                    the prefetch primops are currently erased
+                    at code generation time.
+               </p></li></ul></div></div><div class="sect3" title="1.5.2.3. GHCi"><div class="titlepage"><div><div><h4 class="title"><a name="idp5474192"></a>1.5.2.3. GHCi</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+                    The monomorphism restriction is now turned off
+                    by default in GHCi.
+            </li><li class="listitem"><p>
+                    GHCi now supports a <code class="literal">prompt2</code>
+                    setting, which allows you to customize the
+                    continuation prompt of multi-line input.
+
+                    For more information, see <a class="xref" href="ghci-commands.html" title="2.7. GHCi commands">Section 2.7, &#8220;GHCi commands&#8221;</a>.
+               </p></li><li class="listitem"><p>
+                    The new <code class="literal">:shows paths</code> command
+                    shows the current working directory and the
+                    current search path for Haskell modules.
+               </p></li><li class="listitem"><p>
+                    On Linux, the static GHCi linker now supports weak symbols.
+               </p></li><li class="listitem"><p>
+                    The (static) GHCi linker (except 64-bit Windows) now runs
+                    constructors for linked libraries. This means for example
+                    that C code using
+                    <code class="literal">__attribute__((constructor))</code>
+                    can now properly be loaded into GHCi.
+               </p><p>
+                    Note: destructors are not supported.
+               </p></li></ul></div></div><div class="sect3" title="1.5.2.4. Template Haskell"><div class="titlepage"><div><div><h4 class="title"><a name="idp5482576"></a>1.5.2.4. Template Haskell</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Template Haskell now supports Roles.
+               </p></li><li class="listitem"><p>
+                    Template Haskell now supports annotation pragmas.
+               </p></li><li class="listitem"><p>
+                    Typed Template Haskell expressions are now supported. See
+                    <a class="xref" href="template-haskell.html" title="7.16. Template Haskell">Section 7.16, &#8220;Template Haskell&#8221;</a> for more details.
+             </p></li><li class="listitem"><p>
+                    Template Haskell declarations, types, patterns, and
+                    <span class="emphasis"><em>untyped</em></span> expressions are no longer
+                    typechecked at all. This is a backwards-compatible change
+                    since it allows strictly more programs to be typed.
+             </p></li><li class="listitem"><p>
+                    Template Haskell now supports pattern splices.
+             </p></li></ul></div></div><div class="sect3" title="1.5.2.5. Runtime system"><div class="titlepage"><div><div><h4 class="title"><a name="idp5489168"></a>1.5.2.5. Runtime system</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    The RTS linker can now unload object code at
+                    runtime (when using the GHC API
+                    <code class="literal">ObjLink</code> module.) Previously,
+                    GHC would not unload the old object file, causing
+                    a gradual memory leak as more objects were loaded
+                    over time.
+               </p><p>
+                    Note that this change in unloading behavior
+                    <span class="emphasis"><em>only</em></span> affects statically
+                    linked binaries, and not dynamic ones.
+               </p></li><li class="listitem"><p>
+                    The performance of <code class="literal">StablePtr</code>s and
+                    <code class="literal">StableName</code>s has been improved.
+               </p></li><li class="listitem"><p>
+                    The default maximum stack size has
+                    increased. Previously, it defaulted to 8m
+                    (equivalent to passing <code class="literal">+RTS
+                    -K8m</code>. Now, GHC will use up-to 80% of the
+                    <span class="emphasis"><em>physical memory</em></span> available at
+                    runtime.
+               </p></li></ul></div></div><div class="sect3" title="1.5.2.6. Build system"><div class="titlepage"><div><div><h4 class="title"><a name="idp5497200"></a>1.5.2.6. Build system</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    GHC &gt;= 7.4 is now required for bootstrapping.
+               </p></li><li class="listitem"><p>
+                    GHC can now be built with Clang, and use Clang as
+                    the preprocessor for Haskell code. Only Clang
+                    version 3.4 (or Apple LLVM Clang 5.0) or beyond is
+                    reliably supported.
+               </p><p>
+                    Note that normally, GHC uses
+                    <code class="literal">gcc</code> as the preprocessor for
+                    Haskell code, which implements
+                    <code class="literal">-traditional</code> behavior. However,
+                    Clang is not 100% compatible with GCC's
+                    <code class="literal">-traditional</code> as it is rather
+                    implementation specified, and is more strict.
+               </p><p>
+                    As a result of this, when using Clang as the
+                    preprocessor, some programs which previously used
+                    <code class="literal">-XCPP</code> and the preprocessor will
+                    now fail to compile. Users who wish to retain the
+                    previous behavior are better off using cpphs.
+               </p></li></ul></div></div></div><div class="sect2" title="1.5.3. Libraries"><div class="titlepage"><div><div><h3 class="title"><a name="idp5504704"></a>1.5.3. Libraries</h3></div></div></div><div class="sect3" title="1.5.3.1. array"><div class="titlepage"><div><div><h4 class="title"><a name="idp5505344"></a>1.5.3.1. array</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.5.0.0 (was 0.4.0.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.2. base"><div class="titlepage"><div><div><h4 class="title"><a name="idp5507360"></a>1.5.3.2. base</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 4.7.0.0 (was 4.6.0.1)
+               </p></li><li class="listitem"><p>
+                    The <code class="literal">Control.Category</code> module now has the
+                    <code class="literal">PolyKinds</code> extension enabled, meaning
+                    that instances of <code class="literal">Category</code> no longer
+                    need be of kind <code class="literal">* -&gt; * -&gt; *</code>.
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Foldable</code> and <code class="literal">Traversable</code>
+                    instances for <code class="literal">Either a</code>, <code class="literal">Const r</code>, and <code class="literal">(,) a</code>.
+               </p></li><li class="listitem"><p>
+                    There is now a <code class="literal">Monoid</code> instance for <code class="literal">Const</code>.
+               </p></li><li class="listitem"><p>
+                    There is now a <code class="literal">Data</code> instance for <code class="literal">Data.Version</code>.
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Data</code>,
+                    <code class="literal">Typeable</code>, and
+                    <code class="literal">Generic</code> instances for the types
+                    in <code class="literal">Data.Monoid</code> and
+                    <code class="literal">Control.Applicative</code>
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Num</code> instances for <code class="literal">Data.Monoid.Product</code> and <code class="literal">Data.Monoid.Sum</code>
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Eq</code>, <code class="literal">Ord</code>, <code class="literal">Show</code> and <code class="literal">Read</code> instances for <code class="literal">ZipList</code>.
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Eq</code>, <code class="literal">Ord</code>, <code class="literal">Show</code> and <code class="literal">Read</code> instances for <code class="literal">Down</code>.
+               </p></li><li class="listitem"><p>
+                    There are now <code class="literal">Eq</code>, <code class="literal">Ord</code>, <code class="literal">Show</code>, <code class="literal">Read</code> and <code class="literal">Generic</code> instances for types in GHC.Generics (<code class="literal">U1</code>, <code class="literal">Par1</code>, <code class="literal">Rec1</code>, <code class="literal">K1</code>, <code class="literal">M1</code>, <code class="literal">(:+:)</code>, <code class="literal">(:*:)</code>, <code class="literal">(:.:)</code>).
+               </p></li><li class="listitem"><p>
+                    A zero-width unboxed poly-kinded <code class="literal">Proxy#</code>
+                    was added to <code class="literal">GHC.Prim</code>. It can be used to make it so
+                    that there is no the operational overhead for passing around proxy
+                    arguments to model type application.
+               </p></li><li class="listitem"><p>
+                    <code class="literal">Control.Concurrent.MVar</code> has a new
+                    implementation of <code class="literal">readMVar</code>, which
+                    fixes a long-standing bug where
+                    <code class="literal">readMVar</code> is only atomic if there
+                    are no other threads running
+                    <code class="literal">putMVar</code>.
+                    <code class="literal">readMVar</code> now is atomic, and is
+                    guaranteed to return the value from the first
+                    <code class="literal">putMVar</code>.  There is also a new <code class="literal">tryReadMVar</code>
+                    which is a non-blocking version.
+               </p></li><li class="listitem"><p>
+                    There are now byte endian-swapping primitives
+                    available in <code class="literal">Data.Word</code>, which
+                    use optimized machine instructions when available.
+               </p></li><li class="listitem"><p>
+                    <code class="literal">Data.Bool</code> now exports
+                    <code class="literal">bool :: a -&gt; a -&gt; Bool -&gt; a</code>, analogously
+                    to <code class="literal">maybe</code> and <code class="literal">either</code>
+                    in their respective modules.
+               </p></li><li class="listitem"><p>
+                     Rewrote portions of <code class="literal">Text.Printf</code>, and
+                     made changes to <code class="literal">Numeric</code> (added
+                     <code class="literal">Numeric.showFFloatAlt</code> and
+                     <code class="literal">Numeric.showGFloatAlt</code>) and
+                     <code class="literal">GHC.Float</code> (added
+                     <code class="literal">formatRealFloatAlt</code>) to support it.
+                     The rewritten version is extensible to user types, adds a
+                     "generic" format specifier "<code class="literal">%v</code>",
+                     extends the <code class="literal">printf</code> spec
+                     to support much of C's <code class="literal">printf(3)</code>
+                     functionality, and fixes the spurious warnings about
+                     using <code class="literal">Text.Printf.printf</code> at
+                     <code class="literal">(IO a)</code> while ignoring the return value.
+                     These changes were contributed by Bart Massey.
+               </p></li><li class="listitem"><p>
+                     The minimal complete definitions for all
+                     type-classes with cyclic default implementations
+                     have been explicitly annotated with the new
+                     <code class="literal">{-# MINIMAL #-}</code> pragma.
+               </p></li><li class="listitem"><p>
+                     <code class="literal">Control.Applicative.WrappedMonad</code>,
+                     which can be used to convert a <code class="literal">Monad</code>
+                     to an <code class="literal">Applicative</code>, has now
+                     a <code class="literal">Monad m =&gt; Monad (WrappedMonad m)</code>
+                     instance.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.3. bin-package-db"><div class="titlepage"><div><div><h4 class="title"><a name="idp5569488"></a>1.5.3.3. bin-package-db</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    This is an internal package, and should not be used.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.4. binary"><div class="titlepage"><div><div><h4 class="title"><a name="idp5571520"></a>1.5.3.4. binary</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.7.1.0 (was 0.5.1.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.5. bytestring"><div class="titlepage"><div><div><h4 class="title"><a name="idp5573536"></a>1.5.3.5. bytestring</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.10.4.0 (was 0.10.0.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.6. Cabal"><div class="titlepage"><div><div><h4 class="title"><a name="idp5575552"></a>1.5.3.6. Cabal</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.18.1.3 (was 1.16.0)
+              </p></li></ul></div></div><div class="sect3" title="1.5.3.7. containers"><div class="titlepage"><div><div><h4 class="title"><a name="idp5577568"></a>1.5.3.7. containers</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.5.4.0 (was 0.5.0.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.8. deepseq"><div class="titlepage"><div><div><h4 class="title"><a name="idp5579584"></a>1.5.3.8. deepseq</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.3.0.2 (was 1.3.0.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.9. directory"><div class="titlepage"><div><div><h4 class="title"><a name="idp5581600"></a>1.5.3.9. directory</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.2.0.2 (was 1.2.0.1)
+               </p></li><li class="listitem"><p>
+                    The function <code class="literal">findExecutables</code>
+                    now correctly checks to see if the execute bit is
+                    set on Linux, rather than just looking in
+                    <code class="literal">$PATH</code>.
+               </p></li><li class="listitem"><p>
+                    There are several new functions for finding files,
+                    including <code class="literal">findFiles</code> and
+                    <code class="literal">findFilesWith</code>, which allow you
+                    to search for a file given a set of filepaths, and
+                    run a predicate over them.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.10. filepath"><div class="titlepage"><div><div><h4 class="title"><a name="idp5588096"></a>1.5.3.10. filepath</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.3.0.2 (was 1.3.0.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.11. ghc-prim"><div class="titlepage"><div><div><h4 class="title"><a name="idp5590112"></a>1.5.3.11. ghc-prim</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.3.1.0 (was 0.3.0.0)
+               </p></li><li class="listitem"><p>
+                     The type-classes <code class="literal">Eq</code> and
+                     <code class="literal">Ord</code> have been annotated with
+                     the new <code class="literal">{-# MINIMAL #-}</code>
+                     pragma.
+               </p></li><li class="listitem"><p>
+                    There is a new type exposed by
+                    <code class="literal">GHC.Types</code>, called
+                    <code class="literal">SPEC</code>, which can be used to
+                    inform GHC to perform call-pattern specialisation
+                    extremely aggressively. See <a class="xref" href="options-optimise.html" title="4.10. Optimisation (code improvement)">Section 4.10, &#8220;Optimisation (code improvement)&#8221;</a> for more details
+                    concerning <code class="literal">-fspec-constr</code>.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.12. haskell98"><div class="titlepage"><div><div><h4 class="title"><a name="idp5598160"></a>1.5.3.12. haskell98</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 2.0.0.3 (was 2.0.0.2)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.13. haskell2010"><div class="titlepage"><div><div><h4 class="title"><a name="idp5600176"></a>1.5.3.13. haskell2010</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.1.1.1 (was 1.1.1.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.14. hoopl"><div class="titlepage"><div><div><h4 class="title"><a name="idp5602192"></a>1.5.3.14. hoopl</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 3.10.0.0 (was 3.9.0.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.15. hpc"><div class="titlepage"><div><div><h4 class="title"><a name="idp5604208"></a>1.5.3.15. hpc</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.6.0.1 (was 0.6.0.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.16. integer-gmp"><div class="titlepage"><div><div><h4 class="title"><a name="idp5606224"></a>1.5.3.16. integer-gmp</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 0.5.1.0 (was 0.5.0.0)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.17. old-locale"><div class="titlepage"><div><div><h4 class="title"><a name="idp5608240"></a>1.5.3.17. old-locale</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.0.0.6 (was 1.0.0.5)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.18. old-time"><div class="titlepage"><div><div><h4 class="title"><a name="idp5610256"></a>1.5.3.18. old-time</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.1.0.2 (was 1.1.0.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.19. process"><div class="titlepage"><div><div><h4 class="title"><a name="idp5612272"></a>1.5.3.19. process</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.2.0.0 (was 1.1.0.2)
+               </p></li><li class="listitem"><p>
+                    Several bugs have been fixed, including deadlocks
+                    in <code class="literal">readProcess</code> and
+                    <code class="literal">readProcessWithExitCode</code>.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.20. template-haskell"><div class="titlepage"><div><div><h4 class="title"><a name="idp5616416"></a>1.5.3.20. template-haskell</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 2.9.0.0 (was 2.8.0.0)
+               </p></li><li class="listitem"><p>
+                    Typed Template Haskell expressions are now
+                    supported. See <a class="xref" href="template-haskell.html" title="7.16. Template Haskell">Section 7.16, &#8220;Template Haskell&#8221;</a>
+                    for more details.
+               </p></li><li class="listitem"><p>
+                    There is now support for roles.
+               </p></li><li class="listitem"><p>
+                    There is now support for annotation pragmas.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.21. time"><div class="titlepage"><div><div><h4 class="title"><a name="idp5621520"></a>1.5.3.21. time</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 1.4.1 (was 1.4.1)
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.22. unix"><div class="titlepage"><div><div><h4 class="title"><a name="idp5623520"></a>1.5.3.22. unix</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 2.7.0.0 (was 2.6.0.0)
+               </p></li><li class="listitem"><p>
+                    A crash in <code class="literal">getGroupEntryForID</code>
+                    (and related functions like
+                    <code class="literal">getUserEntryForID</code> and
+                    <code class="literal">getUserEntryForName</code>) in
+                    multi-threaded applications has been fixed.
+               </p></li><li class="listitem"><p>
+                    The functions <code class="literal">getGroupEntryForID</code>
+                    and <code class="literal">getUserEntryForID</code> now fail
+                    with a <code class="literal">isDoesNotExist</code> error when
+                    the specified ID cannot be found.
+               </p></li></ul></div></div><div class="sect3" title="1.5.3.23. Win32"><div class="titlepage"><div><div><h4 class="title"><a name="idp5631088"></a>1.5.3.23. Win32</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                    Version number 2.3.0.1 (was 2.3.0.0)
+               </p></li></ul></div></div></div><div class="sect2" title="1.5.4. Known bugs"><div class="titlepage"><div><div><h3 class="title"><a name="idp5633232"></a>1.5.4. Known bugs</h3></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                On OS X Mavericks, when using Clang as the C
+                preprocessor, Haddock has a bug that causes it to fail
+                to generate documentation, with an error similar to
+                the following:
+
+</p><pre class="programlisting">
+&lt;no location info&gt;:
+    module 'xhtml-3000.2.1:Main' is defined in multiple files: dist-bindist/build/tmp-72252/Text/XHtml.hs
+                                                               dist-bindist/build/tmp-72252/Text/XHtml/Frameset.hs
+                                                               dist-bindist/build/tmp-72252/Text/XHtml/Strict.hs
+                                                               dist-bindist/build/tmp-72252/Text/XHtml/Transitional.hs
+...
+</pre><p>
+
+           </p><p>
+                This only affects certain packages. This is due to a
+                bad interaction with Clang, which we hope to resolve
+                soon.
+           </p><p>
+                Note that when using <code class="literal">cabal-install</code>,
+                this only effects the package documentation, not
+                installation or building.
+           </p></li><li class="listitem"><p>
+                On OS X 10.7 and beyond, with default build settings,
+                the runtime system currently suffers from a fairly
+                large (approx. 30%) performance regression in the
+                parallel garbage collector when using
+                <code class="literal">-threaded</code>.
+           </p><p>
+                This is due to the fact that the OS X 10.7+ toolchain
+                does not (by default) support register variables, or a
+                fast <code class="literal">__thread</code> implementation. Note
+                that this can be worked around by building GHC using
+                GCC instead on OS X platforms, but the binary
+                distribution then requires GCC later.
+           </p></li><li class="listitem"><p>
+                On Windows, <code class="literal">-dynamic-too</code> is unsupported.
+           </p></li><li class="listitem"><p>
+                On Windows, we currently don't ship dynamic libraries
+                or use a dynamic GHCi, unlike Linux, FreeBSD or OS X.
+           </p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="version-numbering.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="introduction-GHC.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="release-7-8-2.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">1.4. GHC version numbering policy </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 1.6. Release notes for version 7.8.2</td></tr></table></div></body></html>

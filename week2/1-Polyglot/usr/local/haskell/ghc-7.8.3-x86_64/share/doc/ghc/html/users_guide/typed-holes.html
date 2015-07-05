@@ -1,0 +1,87 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>7.14. Typed Holes</title><link rel="stylesheet" type="text/css" href="fptools.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"><link rel="home" href="index.html" title="The Glorious Glasgow Haskell Compilation System User's Guide, Version 7.8.3"><link rel="up" href="ghc-language-features.html" title="Chapter 7. GHC Language Features"><link rel="prev" href="other-type-extensions.html" title="7.13. Other type system extensions"><link rel="next" href="defer-type-errors.html" title="7.15. Deferring type errors to runtime"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.14. Typed Holes</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="other-type-extensions.html">Prev</a> </td><th width="60%" align="center">Chapter 7. GHC Language Features</th><td width="20%" align="right"> <a accesskey="n" href="defer-type-errors.html">Next</a></td></tr></table><hr></div><div class="sect1" title="7.14. Typed Holes"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="typed-holes"></a>7.14. Typed Holes</h2></div></div></div><p>Typed hole support is enabled with the option
+<code class="option">-fwarn-typed-holes</code>, which is enabled by default.</p><p>
+This option allows special placeholders, written with a leading underscore (e.g. "<code class="literal">_</code>",
+"<code class="literal">_foo</code>", "<code class="literal">_bar</code>"), to be used as an expression.
+During compilation these holes will generate an error message describing what type is expected there,
+information about the origin of any free type variables, and a list of local bindings
+that might help fill the hole with actual code.
+</p><p>
+The goal of the typed holes warning is not to change the type system, but to help with writing Haskell
+code. Typed holes can be used to obtain extra information from the type checker, which might otherwise be hard
+to get.
+Normally, using GHCi, users can inspect the (inferred) type signatures of all top-level bindings.
+However, this method is less convenient with terms which are not defined on top-level or
+inside complex expressions. Holes allow to check the type of the term you're about to write.
+</p><p>
+Holes work together well with <a class="link" href="defer-type-errors.html" title="7.15. Deferring type errors to runtime">deferring type errors to runtime</a>:
+with <code class="literal">-fdefer-type-errors</code>, the error from a hole is also deferred, effctively making the hole
+typecheck just like <code class="literal">undefined</code>, but with the added benefit that it will show its warning message
+if it gets evaluated. This way, other parts of the code can still be executed and tested.
+</p><p>
+For example, compiling the following module with GHC:
+</p><pre class="programlisting">
+f :: a -&gt; a
+f x = _
+</pre><p>
+will fail with the following error:
+</p><pre class="programlisting">
+hole.hs:2:7:
+    Found hole `_' with type: a
+    Where: `a' is a rigid type variable bound by
+               the type signature for f :: a -&gt; a at hole.hs:1:6
+    Relevant bindings include
+      f :: a -&gt; a (bound at hole.hs:2:1)
+      x :: a (bound at hole.hs:2:3)
+    In the expression: _
+    In an equation for `f': f x = _
+</pre><p>
+</p><p>
+Multiple typed holes can be used to find common type variables between expressions. For example:
+</p><pre class="programlisting">
+sum :: [Int] -&gt; Int
+sum xs = foldr _f _z xs
+</pre><p>
+Shows:
+</p><pre class="programlisting">
+holes.hs:2:15:
+    Found hole `_f' with type: Int -&gt; Int -&gt; Int
+    In the first argument of `foldr', namely `_'
+    In the expression: foldr _a _b _c
+    In an equation for `sum': sum x = foldr _a _b _c
+
+holes.hs:2:17:
+    Found hole `_z' with type: Int
+    In the second argument of `foldr', namely `_'
+    In the expression: foldr _a _b _c
+    In an equation for `sum': sum x = foldr _a _b _c
+</pre><p>
+</p><p>
+Unbound identifiers with the same name are never unified, even within the same function, but always printed individually.
+For example:
+</p><pre class="programlisting">
+cons = _x : _x
+</pre><p>
+results in the following errors:
+</p><pre class="programlisting">
+unbound.hs:1:8:
+    Found hole '_x' with type: a
+    Where: `a' is a rigid type variable bound by
+               the inferred type of cons :: [a] at unbound.hs:1:1
+    Relevant bindings include cons :: [a] (bound at unbound.hs:1:1)
+    In the first argument of `(:)', namely `_x'
+    In the expression: _x : _x
+    In an equation for `cons': cons = _x : _x
+
+unbound.hs:1:13:
+    Found hole '_x' with type: [a]
+    Arising from: an undeclared identifier `_x' at unbound.hs:1:13-14
+    Where: `a' is a rigid type variable bound by
+               the inferred type of cons :: [a] at unbound.hs:1:1
+    Relevant bindings include cons :: [a] (bound at unbound.hs:1:1)
+    In the second argument of `(:)', namely `_x'
+    In the expression: _x : _x
+    In an equation for `cons': cons = _x : _x
+</pre><p>
+This ensures that an unbound identifier is never reported with a too polymorphic type, like
+<code class="literal">forall a. a</code>, when used multiple times for types that can not be unified.
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="other-type-extensions.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ghc-language-features.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="defer-type-errors.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">7.13. Other type system extensions </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 7.15. Deferring type errors to runtime</td></tr></table></div></body></html>
